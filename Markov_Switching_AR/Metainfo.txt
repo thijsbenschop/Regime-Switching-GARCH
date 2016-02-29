@@ -1,6 +1,6 @@
 Name of QuantLet: 
 
-Published in: 
+Published in: MarkovSwitchingAR	
 
 Description: 
 
