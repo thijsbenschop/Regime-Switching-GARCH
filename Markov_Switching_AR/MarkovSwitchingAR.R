@@ -12,40 +12,40 @@ lapply(libraries, library, quietly = TRUE, character.only = TRUE)
 # Set working directory
 setwd("")
 
-# Estimation of Markov Switching AR4 model
+# Estimation of Markov Switching AR(4) model
 
 # Function to evaluate the expectation stage of the EM algorithm
 condLogLikPar <- function(theta, series){
 	# calculates the conditional loglikelihood for a AR Markov Switching model 
 	# with 2 states
-	# Arguments
-	# p11 transition probability to stay in state 1
-	# p22 transition probability to stay in state 2
-	# c1, c2, constant term for AR process in resp. state 1 and 2
-	# phi
-	# sigma, standard deviation of Gaussian disturbances
+	# arguments
+	# - p11 transition probability to stay in state 1
+	# - p22 transition probability to stay in state 2
+	# - c1, c2, constant term for AR process in resp. state 1 and 2
+	# - phi
+	# - sigma, standard deviation of Gaussian disturbances
 	# returns : value of conditional log-likelihood
-	theta[1] -> p11
-	theta[2] -> p22
-	theta[3] -> c1
-	theta[4] -> c2 
-	theta[5] -> phi11
-	theta[6] -> phi12
-	theta[7] -> phi21
-	theta[8] -> phi22
-	theta[9] -> phi31
+	theta[1]  -> p11
+	theta[2]  -> p22
+	theta[3]  -> c1
+	theta[4]  -> c2 
+	theta[5]  -> phi11
+	theta[6]  -> phi12
+	theta[7]  -> phi21
+	theta[8]  -> phi22
+	theta[9]  -> phi31
 	theta[10] -> phi32
 	theta[11] -> phi41
 	theta[12] -> phi42
 	theta[13] -> sigma1
 	theta[14] -> sigma2
-	n <- length(series)	# number of obs.
-	p <- cbind(c(p11, 1-p22), c(1-p11, p22)) # transition matrix
-	dzeta <- cbind(rep(0, n), rep(0, n))
-	f <- cbind(rep(0, n))
-	eta <- cbind(rep(0,n), rep(0,n))
+	n         <- length(series)	# number of obs.
+	p         <- cbind(c(p11, 1-p22), c(1-p11, p22)) # transition matrix
+	dzeta     <- cbind(rep(0, n), rep(0, n))
+	f         <- cbind(rep(0, n))
+	eta       <- cbind(rep(0,n), rep(0,n))
 	
-	dzetaInit <- c((1-p[2,2])/(2-p[1,1]-p[2,2]), (1-p[1,1])/(2-p[2,2]-p[1,1]))
+	dzetaInit <- c((1-p[2, 2])/(2 - p[1, 1] - p[2, 2]), (1-p[1,1])/(2-p[2,2]-p[1,1]))
 	# startvalue for iterations, assuming the Markov chain is ergodic
 	# alternative  dzetaInit <- c(0.5, 0.5)	
 	
@@ -149,33 +149,31 @@ condLogLik <- function(theta, series){
 	return(-logf)
 }
 
-getwd()
-setwd("/Users/thijsbenschop/Desktop/MasterThesis/Data/Masterthesis3")
-setwd("E:/MasterThesis14012013/Data/MasterThesis3")
-setwd("H:/")
+
+setwd("C:/Users/thijs.benschop/Documents/GitHub/Regime-Switching-GARCH/Markov_Switching_AR")
 getwd()
 data <- read.table("dataCO2.txt", header=TRUE)
 names(data)
 dim(data)
 
-startVal <- c(0.5, 0.5, -0.0006, -0.0006, 0.0988, 0.0988, -0.1391, -0.1391, 0.0795, 0.0795, 0.0609, 0.0609, 0.02397082, 0.02397082)
-test <- condLogLik(theta <- parValues, series <- data[2:725,5])
+startVal  <- c(0.5, 0.5, -0.0006, -0.0006, 0.0988, 0.0988, -0.1391, -0.1391, 0.0795, 0.0795, 0.0609, 0.0609, 0.02397082, 0.02397082)
+test      <- condLogLik(theta <- parValues, series <- data[2:725,5])
 
 AIC <- 2*test + 2*14
 
-test1 <- optim(f=condLogLik, p <- startVal, series = data[2:725,5])
-test2 <- optim(f=condLogLik, p <- test1$par, series = data[2:725,5])
-test3 <- optim(f=condLogLik, p <- test2$par, series = data[2:725,5])
-test4 <- optim(f=condLogLik, p <- test3$par, series = data[2:725,5])
-test5 <- optim(f=condLogLik, p <- test4$par, series = data[2:725,5])
-test6 <- optim(f=condLogLik, p <- test5$par, series = data[2:725,5])
-test7 <- optim(f=condLogLik, p <- test6$par, series = data[2:725,5])
-test8 <- optim(f=condLogLik, p <- test7$par, series = data[2:725,5])
-test9 <- optim(f=condLogLik, p <- test8$par, series = data[2:725,5])
-test10 <- optim(f=condLogLik, p <- test9$par, series = data[2:725,5])
-test11 <- optim(f=condLogLik, p <- test10$par, series = data[2:725,5])
-test12 <- optim(f=condLogLik, p <- test11$par, series = data[2:725,5])
-test13 <- optim(f=condLogLik, p <- test12$par, series = data[2:725,5])
+test1  <- optim(f = condLogLik, p <- startVal,   series = data[2:725,5])
+test2  <- optim(f = condLogLik, p <- test1$par,  series = data[2:725,5])
+test3  <- optim(f = condLogLik, p <- test2$par,  series = data[2:725,5])
+test4  <- optim(f = condLogLik, p <- test3$par,  series = data[2:725,5])
+test5  <- optim(f = condLogLik, p <- test4$par,  series = data[2:725,5])
+test6  <- optim(f = condLogLik, p <- test5$par,  series = data[2:725,5])
+test7  <- optim(f = condLogLik, p <- test6$par,  series = data[2:725,5])
+test8  <- optim(f = condLogLik, p <- test7$par,  series = data[2:725,5])
+test9  <- optim(f = condLogLik, p <- test8$par,  series = data[2:725,5])
+test10 <- optim(f = condLogLik, p <- test9$par,  series = data[2:725,5])
+test11 <- optim(f = condLogLik, p <- test10$par, series = data[2:725,5])
+test12 <- optim(f = condLogLik, p <- test11$par, series = data[2:725,5])
+test13 <- optim(f = condLogLik, p <- test12$par, series = data[2:725,5])
 
 #test2 <- nlm(condLogLik, p <- c(0.7, 0.8, 1.2, 0.8, 0.6, 1), series <- data[,1], iterlim =500)
 #test2
@@ -421,56 +419,6 @@ for (i in 1:458){
 	confInterval[i,1] <- qnorm(0.025, mean=pointForecastRolWin[i], sd=sqrt(sigma2ForecastRolWin[i]))
 	confInterval[i,2] <- qnorm(0.975, mean=pointForecastRolWin[i], sd=sqrt(sigma2ForecastRolWin[i]))
 	}
-
-
-##############################################################
-##############################################################
-##############################################################
-
-# Density forecasts
-# One-day ahead forecast AR(4)-GARCH(1,1)
-order <- 4
-densityForecast <- cbind(rep(0, 458), rep(0, 458)) # mean and var
-for (i in 726:1183){
-	# mean
-	reestimate <- garchFit(formula = ~arma(4,0) + garch(1,1), data=data$logRet[2:(i-1)])
-	densityForecast[i-725, 1] <- estimate <- reestimate$coef[1] + reestimate$coef[2]*data$logRet[i-1] + reestimate$coef[3]*data$logRet[i-2] + reestimate$coef[4]*data$logRet[i-3] + reestimate$coef[5]*data$logRet[i-4] 
-	# standard deviation TO BE CHECKED ABOUT FORECASTING
-	densityForecast[i-725, 2] <- sqrt(reestimate$coef[6] + reestimate$coef[7] * (data$logRet[] - densityForecast[i-726, 1]-)^2+ reestimate$coef[8] * )
-	}
-reestimate@fit$coef[5]
-?garchFit
-
-# Density transformation
-u <- c(rep(0, 458))
-for (i in 1:length(u)){
-	u[i] <- pnorm(data$logRet[i+725], mean=densityForecast[i, 1], sd=densityForecast[i,2] )
-	}
-
-hist(u, breaks=20)
-?hist
-# test on uniformity!!!!
-
-# logreturns and predicted 95 percent confidence intervals
-# calculate 2,5 and 97,5 quantiles
-confInterval <- cbind(rep(0, 458), rep(0, 458))
-for (i in 1:458){
-	confInterval[i,1] <- qnorm(0.025, mean=densityForecast[i, 1], sd=densityForecast[i,2])
-	confInterval[i,2] <- qnorm(0.975, mean=densityForecast[i, 1], sd=densityForecast[i,2])
-	}
-
-plot(data$logRet[726:1183], type="l", ylim=c(-0.15, 0.2))
-par(new=TRUE)
-plot(confInterval[,1], type="l", ylim=c(-0.15, 0.2))
-par(new=TRUE)
-plot(confInterval[,2], type="l", ylim=c(-0.15, 0.2))
-confInterval
-
-#################################################################################
-#################################################################################
-#################################################################################
-
-
 
 
 

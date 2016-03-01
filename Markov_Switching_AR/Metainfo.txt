@@ -1,12 +1,14 @@
-Name of QuantLet: 
+Name of QuantLet: MarkovSwitchingAR
 
-Published in: MarkovSwitchingAR	
+Published in: Volatility Modelling of CO2 Emission Allowance Spot Prices with Regime-Switching GARCH Models
 
-Description: 
+Description: 'Estimates an Markov switching autoregressive model and forecasts in-sample and out-of-sample'
 
-Keywords: MDS, non-metric-MDS, multi-dimensional, scaling, PAV, violators, plot, graphical representation
+Keywords: autoregressive, Markov, volatility
 
-See also: MVAMDScity1, MVAMDScity2, MVAMDSnonmstart, MVAMDSpooladj, MVAmdscarm, MVAnmdscar2, MVAnmdscar3, PAVAlgo, MVAcarrankings
+Keywords[new] : switching models, Markov chain
+
+See also: MarkovSwitchingARGARCH, MarkovSwitchingGARCH, MarkovSwitchingNormal
 
 Author: Thijs Benschop
 
