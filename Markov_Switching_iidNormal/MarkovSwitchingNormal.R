@@ -1,22 +1,42 @@
+## Clear history
+rm(list = ls(all = TRUE))
+graphics.off()
+
+## Install and load packages
+libraries = c("DEoptim")
+lapply(libraries, function(x) if (!(x %in% installed.packages())) {
+  install.packages(x)
+})
+lapply(libraries, library, quietly = TRUE, character.only = TRUE)
+
+# Set working directory
+setwd("")
+setwd("C:/Users/thijs.benschop/Documents/GitHub/Regime-Switching-GARCH/Markov_Switching_iidNormal")
+
 # Function to evaluate the loglikelihood, 2 states, both iid normal
 condLogLikPar <- function(theta, series) {
   # calculates the conditional loglikelihood for a Markov Switching model with 2
-  # states Arguments p11 transition probability to stay in state 1 p22 transition
-  # probability to stay in state 2 mu1, mu2, mean of distribution in resp. state 1
-  # and 2 sigma1, sigma2, variance of distribution in resp. state 1 and 2 returns :
-  # value of conditional log-likelihood
-  p11 <- theta[1]
-  p22 <- theta[2]
-  mu1 <- theta[3]
-  mu2 <- theta[4]
+  # states 
+  # Arguments:
+  # - p11 transition probability to stay in state 1 
+  # - p22 transition probability to stay in state 2 
+  # - mu1, mu2, mean of distribution in resp. state 1 and 2 
+  # - sigma1, sigma2, variance of distribution in resp. state 1 and 2 
+  # Returns :
+  # - value of conditional log-likelihood
+  
+  p11    <- theta[1]
+  p22    <- theta[2]
+  mu1    <- theta[3]
+  mu2    <- theta[4]
   sigma1 <- theta[5]
   sigma2 <- theta[6]
   
-  n <- length(series)  # number of obs.
-  p <- cbind(c(p11, 1 - p22), c(1 - p11, p22))  # transition matrix
-  dzeta <- cbind(rep(0, n), rep(0, n))
-  f <- cbind(rep(0, n))
-  eta <- cbind(rep(0, n), rep(0, n))
+  n      <- length(series)  # number of obs.
+  p      <- cbind(c(p11, 1 - p22), c(1 - p11, p22))  # transition matrix
+  dzeta  <- cbind(rep(0, n), rep(0, n))
+  f      <- cbind(rep(0, n))
+  eta    <- cbind(rep(0, n), rep(0, n))
   
   dzetaInit <- c((1 - p[2, 2])/(2 - p[1, 1] - p[2, 2]), (1 - p[1, 1])/(2 - p[2, 
     2] - p[1, 1]))
@@ -25,7 +45,7 @@ condLogLikPar <- function(theta, series) {
   
   for (i in 1:n) {
     # Evaluate the densities under the two regimes create if else for different
-    # functional forms ##############
+    # Functional forms
     eta[i, 1] <- dnorm(x = series[i], mean = mu1, sd = sigma1)
     eta[i, 2] <- dnorm(x = series[i], mean = mu2, sd = sigma2)
     # Evaluate the conditional density of the ith observation
@@ -40,10 +60,8 @@ condLogLikPar <- function(theta, series) {
       dzeta[i, 1] <- dzetaInit[1]
       dzeta[i, 2] <- dzetaInit[2]
     } else {
-      dzeta[i, 1] <- (eta[i, 1] * (p[, 1] %*% c(dzeta[i - 1, 1], dzeta[i - 
-        1, 2])))/f[i]
-      dzeta[i, 2] <- (eta[i, 2] * (p[, 2] %*% c(dzeta[i - 1, 1], dzeta[i - 
-        1, 2])))/f[i]
+      dzeta[i, 1] <- (eta[i, 1] * (p[, 1] %*% c(dzeta[i - 1, 1], dzeta[i - 1, 2])))/f[i]
+      dzeta[i, 2] <- (eta[i, 2] * (p[, 2] %*% c(dzeta[i - 1, 1], dzeta[i - 1, 2])))/f[i]
     }
   }
   logf <- sum(log(f[5:n]))
@@ -112,13 +130,10 @@ condLogLik <- function(theta, series) {
   return(-logf)
 }
 
-######################################################### 
-getwd()
-setwd("C:/Users/thijs.benschop/Documents/GitHub/Regime-Switching-GARCH/Markov_Switching_iidNormal")
+## Read-in data
 data <- read.table("dataCO2.txt", header = TRUE)
 names(data)
 dim(data)
-######################################################## 
 
 llh <- condLogLik(theta <- c(recursivePar[, 1]), series <- data[2:725, 5])
 llh
@@ -128,7 +143,6 @@ AIC <- 2 * llhcor + 2 * 6
 logRetFirstPeriod <- data[2:725, 5]
 
 ## Other optimization alghorithms deoptim
-library(DEoptim)
 # p11, p22, mu1, mu2, sigma1, sigma2
 lowParDE <- c(0, 0, -0.3, -0.3, 0, 0)
 upParDE <- c(1, 1, 0.3, 0.3, 0.3, 0.3)
@@ -165,38 +179,8 @@ testOptim <- optim(c(0.7, 0.8, mean(logRetFirstPeriod), mean(logRetFirstPeriod),
 
 parValues <- testnlm$estimate
 
-# loop testing different starting values for p11 and p22
-evalMat1 <- matrix(rep(0, 121), 11, 11)
-evalMat2 <- matrix(rep(0, 121), 11, 11)
-evalMat3 <- matrix(rep(0, 121), 11, 11)
-evalMat4 <- matrix(rep(0, 121), 11, 11)
-evalMat5 <- matrix(rep(0, 121), 11, 11)
-evalMat6 <- matrix(rep(0, 121), 11, 11)
-evalMat7 <- matrix(rep(0, 121), 11, 11)
-evalMat8 <- matrix(rep(0, 121), 11, 11)
-# loop testing different starting values for p11 and p22
-
-for (i in 0:10) {
-  for (j in 0:10) {
-    reestimate <- nlm(condLogLik, p <- c(0.7, 0.8, mean(logRetFirstPeriod), mean(logRetFirstPeriod), 
-      sd(logRetFirstPeriod), sd(logRetFirstPeriod)), data <- logRetFirstPeriod, 
-      iterlim = 100)
-    evalMat1[i + 1, j + 1] <- reestimate$estimate[1]
-    evalMat2[i + 1, j + 1] <- reestimate$estimate[2]
-    evalMat3[i + 1, j + 1] <- reestimate$estimate[3]
-    evalMat4[i + 1, j + 1] <- reestimate$estimate[4]
-    evalMat5[i + 1, j + 1] <- reestimate$estimate[5]
-    evalMat6[i + 1, j + 1] <- reestimate$estimate[6]
-    evalMat7[i + 1, j + 1] <- reestimate$minimum
-    evalMat8[i + 1, j + 1] <- reestimate$code
-  }
-}
-k <- 6
-aic <- 2 * (test2$minimum) + 2 * k
-
-######################################################### Forecasting ##############################
-
-# 2# reestimation, recursive matrix with estimate, error, estimated variance
+## Forecasting 
+# reestimation, recursive matrix with estimate, error, estimated variance
 
 recursivePar <- parValues
 prevPar <- parValues
@@ -209,7 +193,7 @@ for (i in 726:1183) {
 }
 
 # write reestimation to file
-write.table(recursivePar, "reestRecurMSNormal.txt")
+#write.table(recursivePar, "reestRecurMSNormal.txt")
 
 # load recursivePar
 recursivePar <- read.table("reestRecurMSNormal.txt", header = TRUE)
@@ -263,7 +247,7 @@ recursiveMAE
 
 # Write estimation error and estimated volatility to external file
 resPlot <- cbind(estErrorRecur, sigma2Forecast)
-write.table(resPlot, "resMSiid.txt")
+#write.table(resPlot, "resMSiid.txt")
 
 # logreturns and predicted 95 percent confidence intervals calculate 2,5 and 97,5
 # quantiles
@@ -295,16 +279,4 @@ plot(data$logRet[726:1183], type = "l")
 par(new = TRUE)
 plot(estErrorRecur, type = "l")
 
-# Density transformation
-u <- c(rep(0, 458))
-for (i in 1:length(u)) {
-  u[i] <- pnorm(data$logRet[i + 725], mean = pointForecastRec[i], sd = sqrt(sigma2Forecast[i]))
-}
 
-hist(u, breaks = 20)
-
-# test on uniformity Kolmogorov Smirnov
-ks.test(u, "punif")
-
-# Kuiper
-library(stats) 
